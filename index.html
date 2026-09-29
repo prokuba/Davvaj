@@ -1,0 +1,545 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>DAVVAJ — Do something.</title>
+<meta name="description" content="DAVVAJ is a card game for braver days. Small dares that get you off your phone and into the room, plus 3-day and 7-day trips where the whole city is the game.">
+<meta property="og:title" content="DAVVAJ — Do something.">
+<meta property="og:description" content="Good people. Weird challenges. Better stories.">
+<meta name="theme-color" content="#000000">
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Jost:wght@400;500;700&display=swap" rel="stylesheet">
+<style>
+:root{
+  --black:#000;
+  --surface:#161616;
+  --line:#2c2c2c;
+  --red:#F2373A;
+  --red-deep:#B8191C;
+  --paper:#F1EDE4;
+  --muted:#9d9a95;
+  --font:"Jost","Futura","Century Gothic","Avenir Next",system-ui,sans-serif;
+  --wrap:1120px;
+  box-sizing:border-box;
+  padding-top:env(safe-area-inset-top,0px);
+  padding-bottom:env(safe-area-inset-bottom,0px);
+}
+*,*::before,*::after{box-sizing:inherit}
+html{scroll-behavior:smooth;scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}
+body{margin:0;background:var(--black);color:var(--paper);font-family:var(--font);font-size:1.125rem;line-height:1.55;-webkit-font-smoothing:antialiased}
+img,svg{max-width:100%}
+a{color:inherit}
+:focus-visible{outline:2px solid var(--red);outline-offset:4px;border-radius:2px}
+.wrap{width:min(var(--wrap),100% - 2.5rem);margin-inline:auto}
+.sr-only{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
+
+/* Wordmark */
+.wordmark{display:block;height:auto}
+.wordmark .s{fill:none;stroke:currentColor;stroke-width:14;stroke-linejoin:miter;stroke-miterlimit:10}
+.wordmark .t{fill:var(--red)}
+
+/* Nav */
+.nav{position:sticky;top:0;z-index:10;background:rgba(0,0,0,.86);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border-bottom:1px solid var(--line);padding-top:env(safe-area-inset-top,0px)}
+.nav .wrap{display:flex;align-items:center;gap:2rem;height:68px}
+.nav .logo{width:118px;color:var(--paper)}
+.nav ul{display:flex;gap:1.75rem;list-style:none;margin:0 0 0 auto;padding:0}
+.nav ul a{text-decoration:none;font-size:1rem;color:var(--muted)}
+.nav ul a:hover{color:var(--paper)}
+@media (max-width:640px){.nav ul{display:none}.nav .btn{margin-left:auto}}
+
+/* Buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;font:500 1rem/1 var(--font);padding:.95rem 1.4rem;border-radius:999px;border:1.5px solid var(--paper);background:transparent;color:var(--paper);text-decoration:none;cursor:pointer;transition:background .15s,color .15s}
+.btn:hover{background:var(--paper);color:var(--black)}
+.btn.red{background:var(--red);border-color:var(--red);color:#fff}
+.btn.red:hover{background:var(--red-deep);border-color:var(--red-deep)}
+.btn.small{padding:.7rem 1.1rem;font-size:.95rem}
+
+/* Hero */
+.hero{padding:clamp(3rem,8vw,6.5rem) 0 clamp(4rem,9vw,7rem);position:relative;overflow:hidden}
+.hero::after{content:"";position:absolute;inset:auto -10% -40% 40%;height:70%;background:radial-gradient(closest-side,rgba(242,55,58,.22),transparent);pointer-events:none}
+.hero .wrap{display:grid;grid-template-columns:1.1fr .9fr;gap:3rem;align-items:center;position:relative;z-index:1}
+.hero .mark{width:min(420px,100%);color:var(--paper);margin-bottom:1rem}
+.tagline{letter-spacing:.42em;font-size:.9rem;margin:0 0 2.5rem;color:var(--paper)}
+.hero h1{font-weight:700;font-size:clamp(2.6rem,5.4vw,4.3rem);line-height:.95;letter-spacing:-.02em;margin:0 0 1.25rem}
+.lede{font-size:clamp(1.2rem,2vw,1.45rem);margin:0 0 1rem;font-weight:500}
+.hero p.body{color:var(--muted);max-width:34ch;margin:0 0 2rem}
+.actions{display:flex;flex-wrap:wrap;gap:.75rem}
+@media (max-width:860px){.hero .wrap{grid-template-columns:1fr}}
+
+/* Card stage */
+.stage{display:flex;flex-direction:column;align-items:center;gap:1.25rem}
+.deck{position:relative;width:min(300px,78vw);aspect-ratio:5/7;perspective:1400px}
+.deck::before,.deck::after{content:"";position:absolute;inset:0;border-radius:18px;background:var(--surface);border:1px solid var(--line)}
+.deck::before{transform:rotate(-7deg) translate(-10px,6px)}
+.deck::after{transform:rotate(4deg) translate(8px,4px)}
+.card{position:absolute;inset:0;z-index:2;border:0;padding:0;background:none;cursor:pointer;border-radius:18px;font:inherit;color:inherit}
+.card .inner{position:absolute;inset:0;transition:transform .7s cubic-bezier(.2,.8,.2,1);transform-style:preserve-3d}
+.card.flipped .inner{transform:rotateY(180deg)}
+.face{position:absolute;inset:0;border-radius:18px;backface-visibility:hidden;-webkit-backface-visibility:hidden;display:flex;flex-direction:column;align-items:center;justify-content:space-between;padding:2rem 1.5rem 1.6rem;text-align:center;box-shadow:0 30px 60px -25px rgba(0,0,0,.9)}
+.back{background:var(--black);border:1px solid #333;justify-content:center;gap:1.4rem}
+.back svg{width:96px}
+.back .small{letter-spacing:.3em;font-size:.72rem;line-height:1.8;color:var(--muted);text-transform:uppercase}
+.back .rule{width:44px;height:2px;background:var(--red)}
+.front{background:var(--surface);border:1px solid #333;transform:rotateY(180deg);transition:background .5s ease,border-color .5s ease}
+.front.hard{background:var(--red);border-color:var(--red)}
+.front .sym{width:40px;height:40px}
+.front .sym *{fill:none;stroke:currentColor;stroke-width:3}
+.front .prompt{text-transform:uppercase;letter-spacing:.2em;font-weight:500;font-size:clamp(.95rem,2.6vw,1.1rem);line-height:1.6;margin:0}
+.front .foot{display:flex;flex-direction:column;align-items:center;gap:.55rem}
+.pips{display:flex;gap:6px}
+.pips i{width:14px;height:12px;clip-path:polygon(0 0,100% 0,50% 100%);background:currentColor;opacity:.22;transition:opacity .25s}
+.pips i.on{opacity:1}
+.level{font-size:.78rem;letter-spacing:.3em;text-transform:uppercase;min-height:1.2em}
+.stage .hint{color:var(--muted);font-size:.95rem;margin:0;min-height:1.5em;text-align:center}
+.stage-actions{display:flex;gap:.6rem;flex-wrap:wrap;justify-content:center}
+
+/* Sections */
+section{padding:clamp(4rem,9vw,7rem) 0}
+.divide{border-top:1px solid var(--line)}
+h2{font-weight:700;font-size:clamp(2.1rem,4.6vw,3.4rem);line-height:1.02;letter-spacing:-.015em;margin:0 0 1.25rem}
+.intro{color:var(--muted);max-width:56ch;margin:0 0 3rem}
+
+.idea p{font-size:clamp(1.5rem,3.2vw,2.35rem);line-height:1.3;font-weight:500;max-width:30ch;margin:0}
+.idea p span{color:var(--muted)}
+
+.pillars{display:grid;grid-template-columns:repeat(4,1fr);gap:2.5rem;margin-top:4rem}
+.pillar svg{width:56px;height:56px;margin-bottom:1.25rem}
+.pillar svg .o{fill:none;stroke:var(--paper);stroke-width:3.5}
+.pillar h3{font-size:1.2rem;font-weight:700;margin:0 0 .35rem}
+.pillar p{color:var(--muted);margin:0;font-size:1rem}
+.pillar.you h3{color:var(--red)}
+@media (max-width:860px){.pillars{grid-template-columns:repeat(2,1fr)}}
+@media (max-width:480px){.pillars{grid-template-columns:1fr}}
+
+/* Decks */
+.decks{display:grid;grid-template-columns:1fr 1fr;gap:1.5rem}
+.product{border:1px solid var(--line);border-radius:6px;padding:2rem;display:grid;grid-template-rows:auto 1fr auto;gap:1.5rem;background:linear-gradient(180deg,#0d0d0d,#000)}
+.product.alt{background:var(--paper);color:var(--black);border-color:var(--paper)}
+.product.alt .meta{color:#5d5a55}
+.product.alt .btn{border-color:var(--black);color:var(--black)}
+.product.alt .btn:hover{background:var(--black);color:var(--paper)}
+.fan{position:relative;height:170px}
+.fan span{position:absolute;left:50%;bottom:0;width:98px;aspect-ratio:5/7;border-radius:9px;display:grid;place-items:center;transform-origin:50% 120%}
+.fan span svg{width:44px}
+.fan span:nth-child(1){transform:translateX(-50%) rotate(-14deg)}
+.fan span:nth-child(2){transform:translateX(-50%) rotate(0);z-index:2}
+.fan span:nth-child(3){transform:translateX(-50%) rotate(14deg)}
+.fan.dark span{background:#1b1b1b;border:1px solid #3a3a3a}
+.fan.dark span:nth-child(2){background:var(--red);border-color:var(--red)}
+.fan.light span{background:#fff;border:1px solid #d8d3c8}
+.fan.light span:nth-child(2){background:var(--black);border-color:var(--black)}
+.product h3{font-size:1.75rem;margin:0 0 .5rem;font-weight:700;letter-spacing:-.01em}
+.product p{margin:0 0 .75rem}
+.product .meta{color:var(--muted);font-size:1rem}
+@media (max-width:760px){.decks{grid-template-columns:1fr}}
+
+/* Trips ladder */
+.ladder{list-style:none;margin:0;padding:0;display:grid;grid-template-columns:repeat(3,1fr);border-top:1px solid var(--line)}
+.ladder li{padding:2rem 2rem 2rem 0;border-right:1px solid var(--line);position:relative}
+.ladder li+li{padding-left:2rem}
+.ladder li:last-child{border-right:0}
+.ladder .lvl{display:flex;gap:5px;margin-bottom:1.5rem}
+.ladder .lvl i{width:16px;height:14px;background:var(--line);clip-path:polygon(0 0,100% 0,50% 100%)}
+.ladder .lvl i.on{background:var(--red)}
+.ladder h3{font-size:1.5rem;margin:0 0 .25rem;font-weight:700}
+.ladder .len{color:var(--red);font-weight:500;margin:0 0 1rem}
+.ladder p{color:var(--muted);margin:0;font-size:1rem}
+.ladder li.big{background:linear-gradient(180deg,rgba(242,55,58,.12),transparent 70%)}
+.trip-foot{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.5rem;margin-top:3rem;padding-top:2rem;border-top:1px solid var(--line)}
+.trip-foot p{margin:0;max-width:52ch}
+@media (max-width:860px){
+  .ladder{grid-template-columns:1fr}
+  .ladder li,.ladder li+li{padding:2rem 0;border-right:0;border-bottom:1px solid var(--line)}
+  .ladder li.big{padding-inline:1.25rem;margin-inline:-1.25rem}
+}
+
+/* Rules */
+.rules{display:grid;grid-template-columns:1fr 1.4fr;gap:3rem;align-items:start}
+.rules ol{margin:0;padding:0;list-style:none;counter-reset:r}
+.rules li{counter-increment:r;display:grid;grid-template-columns:3rem 1fr;padding:1.4rem 0;border-bottom:1px solid var(--line)}
+.rules li:first-child{border-top:1px solid var(--line)}
+.rules li::before{content:counter(r);color:var(--red);font-weight:700;font-size:1.3rem}
+.rules strong{display:block;font-size:1.25rem;margin-bottom:.2rem}
+.rules li span{color:var(--muted);font-size:1rem}
+@media (max-width:760px){.rules{grid-template-columns:1fr;gap:1rem}}
+
+/* Waitlist */
+.final{text-align:center;position:relative;overflow:hidden}
+.final::before{content:"";position:absolute;left:50%;top:0;width:min(900px,120%);height:100%;transform:translateX(-50%);background:radial-gradient(closest-side,rgba(242,55,58,.28),transparent);pointer-events:none}
+.final .wrap{position:relative}
+.final h2{font-size:clamp(2.6rem,7vw,5rem);margin-bottom:.75rem}
+.final .intro{margin:0 auto 2.5rem}
+form{display:flex;flex-wrap:wrap;gap:.75rem;justify-content:center;max-width:640px;margin:0 auto}
+input,select{font:400 1rem var(--font);padding:.9rem 1.2rem;border-radius:999px;border:1.5px solid #444;background:#0c0c0c;color:var(--paper);min-width:0}
+input{flex:1 1 240px}
+select{flex:0 1 200px;appearance:none;-webkit-appearance:none;background-image:linear-gradient(45deg,transparent 50%,var(--paper) 50%),linear-gradient(135deg,var(--paper) 50%,transparent 50%);background-position:calc(100% - 20px) 55%,calc(100% - 15px) 55%;background-size:5px 5px;background-repeat:no-repeat;padding-right:2.5rem}
+input:focus,select:focus{border-color:var(--paper);outline:none}
+.form-msg{margin:1rem 0 0;min-height:1.5em;color:var(--paper)}
+
+footer{border-top:1px solid var(--line);padding:2.5rem 0 3rem;color:var(--muted);font-size:.95rem}
+footer .wrap{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:1.25rem}
+footer .logo{width:96px;color:var(--paper)}
+footer ul{display:flex;gap:1.25rem;list-style:none;margin:0;padding:0}
+footer a{text-decoration:none}
+footer a:hover{color:var(--paper)}
+
+@media (prefers-reduced-motion:reduce){
+  html{scroll-behavior:auto}
+  .card .inner,.front,.pips i{transition:none}
+}
+</style>
+</head>
+<body>
+
+<!-- Reusable wordmark -->
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <defs>
+    <symbol id="wm" viewBox="0 0 540 100">
+      <path fill="none" stroke="currentColor" stroke-width="14" stroke-miterlimit="10" d="M7 7V93H35A43 43 0 0 0 35 7Z"/>
+      <polyline fill="none" stroke="currentColor" stroke-width="14" stroke-miterlimit="10" points="100,96 138,7 176,96"/>
+      <polygon fill="#F2373A" points="186,7 272,7 229,93"/>
+      <polygon fill="#F2373A" points="282,7 368,7 325,93"/>
+      <polyline fill="none" stroke="currentColor" stroke-width="14" stroke-miterlimit="10" points="378,96 416,7 454,96"/>
+      <path fill="none" stroke="currentColor" stroke-width="14" stroke-miterlimit="10" d="M526 0V64A29 29 0 0 1 468 64"/>
+    </symbol>
+    <symbol id="tri2" viewBox="0 0 100 44">
+      <polygon points="0,0 46,0 23,44" fill="#F2373A"/>
+      <polygon points="54,0 100,0 77,44" fill="#F2373A"/>
+    </symbol>
+  </defs>
+</svg>
+
+<header class="nav">
+  <div class="wrap">
+    <a href="#top" aria-label="DAVVAJ home"><svg class="wordmark logo" viewBox="0 0 540 100" role="img" aria-label="DAVVAJ"><use href="#wm"/></svg></a>
+    <nav aria-label="Main">
+      <ul>
+        <li><a href="#decks">Decks</a></li>
+        <li><a href="#trips">Trips</a></li>
+        <li><a href="#rules">House rules</a></li>
+      </ul>
+    </nav>
+    <a class="btn red small" href="#waitlist">Join the list</a>
+  </div>
+</header>
+
+<main id="top">
+
+  <section class="hero">
+    <div class="wrap">
+      <div>
+        <svg class="wordmark mark" viewBox="0 0 540 100" role="img" aria-label="DAVVAJ"><use href="#wm"/></svg>
+        <p class="tagline">DO SOMETHING.</p>
+        <h1>Good people.<br>Weird challenges.<br>Better stories.</h1>
+        <p class="body">DAVVAJ is a card game for braver days. Small dares that get you off your phone and into the room. Draw a card, then actually do it.</p>
+        <div class="actions">
+          <a class="btn red" href="#decks">Get the decks</a>
+          <a class="btn" href="#trips">See the trips</a>
+        </div>
+      </div>
+
+      <div class="stage" aria-live="polite">
+        <div class="deck">
+          <button class="card" id="card" aria-label="Draw a card">
+            <span class="inner">
+              <span class="face back" aria-hidden="true">
+                <svg viewBox="0 0 100 44"><use href="#tri2"/></svg>
+                <span class="rule"></span>
+                <span class="small">Tap to draw</span>
+              </span>
+              <span class="face front" id="front">
+                <svg class="sym" id="sym" viewBox="0 0 40 40" aria-hidden="true"></svg>
+                <p class="prompt" id="prompt"></p>
+                <span class="foot">
+                  <span class="pips" id="pips" aria-hidden="true"><i></i><i></i><i></i></span>
+                  <span class="level" id="level">Level ?</span>
+                </span>
+              </span>
+            </span>
+          </button>
+        </div>
+        <p class="hint" id="hint">The difficulty stays hidden until you've read the card.</p>
+        <div class="stage-actions">
+          <button class="btn small" id="drawBtn">Draw a card</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="idea divide">
+    <div class="wrap">
+      <p>Most days look the same. <span>Same route, same people, same phone.</span> DAVVAJ breaks the pattern one card at a time.</p>
+
+      <div class="pillars">
+        <div class="pillar">
+          <svg viewBox="0 0 56 56" aria-hidden="true"><circle class="o" cx="28" cy="28" r="24"/></svg>
+          <h3>People</h3>
+          <p>Meet them, talk to them, remember their names.</p>
+        </div>
+        <div class="pillar">
+          <svg viewBox="0 0 56 56" aria-hidden="true"><polygon class="o" points="28,5 52,50 4,50"/></svg>
+          <h3>Places</h3>
+          <p>Go where you wouldn't. Notice what you'd usually miss.</p>
+        </div>
+        <div class="pillar">
+          <svg viewBox="0 0 56 56" aria-hidden="true"><rect class="o" x="6" y="6" width="44" height="44"/></svg>
+          <h3>Challenges</h3>
+          <p>Small, weird, doable. Slightly terrifying.</p>
+        </div>
+        <div class="pillar you">
+          <svg viewBox="0 0 100 44" aria-hidden="true" style="width:72px"><use href="#tri2"/></svg>
+          <h3>You</h3>
+          <p>The only piece in the game that has to move.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section id="decks" class="divide">
+    <div class="wrap">
+      <h2>Start with a deck.</h2>
+      <p class="intro">Two ways to play. One on your own, one with the people you're already out with.</p>
+
+      <div class="decks">
+        <article class="product">
+          <div class="fan dark" aria-hidden="true">
+            <span><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="#F1EDE4" stroke-width="2.5"/></svg></span>
+            <span><svg viewBox="0 0 100 44"><polygon points="0,0 46,0 23,44" fill="#fff"/><polygon points="54,0 100,0 77,44" fill="#fff"/></svg></span>
+            <span><svg viewBox="0 0 40 40"><rect x="7" y="7" width="26" height="26" fill="none" stroke="#F1EDE4" stroke-width="2.5"/></svg></span>
+          </div>
+          <div>
+            <h3>The 30-Day Deck</h3>
+            <p>One mission a day for 30 days. It starts with a compliment and ends with you inviting strangers to your table.</p>
+            <p class="meta">For one player. 30 cards that get braver as you go.</p>
+          </div>
+          <div><a class="btn" href="#waitlist" data-interest="30-Day Deck">Join the waitlist</a></div>
+        </article>
+
+        <article class="product alt">
+          <div class="fan light" aria-hidden="true">
+            <span><svg viewBox="0 0 40 40"><polygon points="20,5 36,34 4,34" fill="none" stroke="#000" stroke-width="2.5"/></svg></span>
+            <span><svg viewBox="0 0 100 44"><use href="#tri2"/></svg></span>
+            <span><svg viewBox="0 0 40 40"><circle cx="20" cy="20" r="14" fill="none" stroke="#000" stroke-width="2.5"/></svg></span>
+          </div>
+          <div>
+            <h3>Friends Out</h3>
+            <p>The group game for bars and nights out. Everyone draws, everyone plays, and nobody goes home with a boring story.</p>
+            <p class="meta">For 3 to 10 players.</p>
+          </div>
+          <div><a class="btn" href="#waitlist" data-interest="Friends Out">Join the waitlist</a></div>
+        </article>
+      </div>
+    </div>
+  </section>
+
+  <section id="trips" class="divide">
+    <div class="wrap">
+      <h2>Then take it on the road.</h2>
+      <p class="intro">Some stories need a new city. DAVVAJ Trips put a small group of strangers, a city and a deck of challenges together. You arrive knowing no one and leave with a group chat that never goes quiet.</p>
+
+      <ol class="ladder">
+        <li>
+          <div class="lvl" aria-hidden="true"><i class="on"></i><i></i><i></i></div>
+          <h3>The Deck</h3>
+          <p class="len">Anywhere, any day</p>
+          <p>Practise at home. One card a day in your own city until talking to strangers feels normal.</p>
+        </li>
+        <li>
+          <div class="lvl" aria-hidden="true"><i class="on"></i><i class="on"></i><i></i></div>
+          <h3>The Weekend Quest</h3>
+          <p class="len">3 days, 1 city</p>
+          <p>A small group, the real sights and a challenge built into every day. Strangers on Friday, friends by Sunday.</p>
+        </li>
+        <li class="big">
+          <div class="lvl" aria-hidden="true"><i class="on"></i><i class="on"></i><i class="on"></i></div>
+          <h3>The Grand Quest</h3>
+          <p class="len">7 days, 3 cities</p>
+          <p>A full week across Europe with bigger challenges each day and one final dare on the last night.</p>
+        </li>
+      </ol>
+
+      <div class="trip-foot">
+        <p>Led by working tour guides who know the cities, the side streets and the people. You bring the nerve, we handle the rest.</p>
+        <a class="btn red" href="#waitlist" data-interest="Trips">Get trip dates first</a>
+      </div>
+    </div>
+  </section>
+
+  <section id="rules" class="divide">
+    <div class="wrap rules">
+      <div>
+        <h2>House rules.</h2>
+        <p class="intro" style="margin:0">Every dare is meant to make someone's day better, including the person on the other side of it.</p>
+      </div>
+      <ol>
+        <li><div><strong>Weird, never creepy.</strong><span>If it would make you uncomfortable on the receiving end, skip the card.</span></div></li>
+        <li><div><strong>Brave, never pushy.</strong><span>A "no" ends the dare. Smile, say thanks and move on.</span></div></li>
+        <li><div><strong>Film the moment, not the person.</strong><span>Ask before anyone ends up online.</span></div></li>
+      </ol>
+    </div>
+  </section>
+
+  <section id="waitlist" class="final divide">
+    <div class="wrap">
+      <h2>Your move.</h2>
+      <p class="intro">Get launch news for the decks and first access to trip dates. One email when something's ready, nothing more.</p>
+      <form id="form" novalidate>
+        <label class="sr-only" for="email">Email</label>
+        <input id="email" name="email" type="email" placeholder="Your email" autocomplete="email" required>
+        <label class="sr-only" for="interest">I'm interested in</label>
+        <select id="interest" name="interest">
+          <option>Everything</option>
+          <option>30-Day Deck</option>
+          <option>Friends Out</option>
+          <option>Trips</option>
+        </select>
+        <button class="btn red" type="submit">Join the list</button>
+      </form>
+      <p class="form-msg" id="formMsg" role="status"></p>
+    </div>
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <svg class="wordmark logo" viewBox="0 0 540 100" role="img" aria-label="DAVVAJ"><use href="#wm"/></svg>
+    <ul>
+      <li><a href="https://instagram.com/davvaj">Instagram</a></li>
+      <li><a href="https://tiktok.com/@davvaj">TikTok</a></li>
+      <li><a href="mailto:67klub@gmail.com">67klub@gmail.com</a></li>
+    </ul>
+    <span>© <span id="yr">2026</span> DAVVAJ. Do something.</span>
+  </div>
+</footer>
+
+<script>
+/* ---------- SETTINGS: edit these ---------- */
+// Paste a form endpoint here (e.g. Formspree: https://formspree.io/f/xxxx).
+// Leave empty and signups open the visitor's email app instead.
+const FORM_ENDPOINT = "";
+const CONTACT_EMAIL = "67klub@gmail.com";
+
+/* ---------- Card list: type = people | places | challenges, level = 1-3 ---------- */
+const CARDS = [
+  {t:"people",l:1,x:"Give a stranger a genuine compliment. Make it specific."},
+  {t:"people",l:1,x:"Ask a barista what they'd order if it was free. Order it."},
+  {t:"people",l:1,x:"Learn someone's name and one thing they love."},
+  {t:"people",l:2,x:"Learn someone's name in a new language."},
+  {t:"people",l:2,x:"Ask someone for a song recommendation and listen to it right there."},
+  {t:"people",l:2,x:"Start a conversation in a queue. Keep it going to the front."},
+  {t:"people",l:3,x:"Ask a stranger to take a ridiculous photo with you."},
+  {t:"people",l:3,x:"Invite someone you just met to join your table."},
+  {t:"places",l:1,x:"Get off one stop early and walk the rest."},
+  {t:"places",l:1,x:"Sit in a park for ten minutes. No phone."},
+  {t:"places",l:2,x:"Eat somewhere with zero reviews online."},
+  {t:"places",l:2,x:"Find the highest point you can reach in your city today."},
+  {t:"places",l:3,x:"Ask a local for a place that isn't on any map. Go there."},
+  {t:"places",l:3,x:"Dance somewhere you shouldn't."},
+  {t:"challenges",l:1,x:"Keep your phone in your pocket for a whole meal with someone."},
+  {t:"challenges",l:2,x:"Say yes to the next reasonable invitation."},
+  {t:"challenges",l:2,x:"Order in a language you're still learning."},
+  {t:"challenges",l:2,x:"Tell a stranger the best thing that happened to you this week."},
+  {t:"challenges",l:2,x:"Swap a book, snack or playlist with someone new."},
+  {t:"challenges",l:3,x:"Teach a stranger something you're good at in under a minute."},
+  {t:"challenges",l:3,x:"Sing one line of a song to the person next to you."},
+  {t:"challenges",l:3,x:"Start a group chat with people you met today."}
+];
+const LEVELS = {1:"Warm-up",2:"Brave",3:"Legendary"};
+const SYMBOLS = {
+  people:'<circle cx="20" cy="20" r="15"/>',
+  places:'<polygon points="20,4 36,34 4,34"/>',
+  challenges:'<rect x="6" y="6" width="28" height="28"/>'
+};
+
+const card = document.getElementById('card');
+const front = document.getElementById('front');
+const sym = document.getElementById('sym');
+const prompt = document.getElementById('prompt');
+const pips = [...document.querySelectorAll('#pips i')];
+const level = document.getElementById('level');
+const hint = document.getElementById('hint');
+const drawBtn = document.getElementById('drawBtn');
+const reduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+let last = -1, timers = [];
+
+function clearTimers(){ timers.forEach(clearTimeout); timers = []; }
+
+function fill(c){
+  sym.innerHTML = SYMBOLS[c.t];
+  prompt.textContent = c.x;
+  front.classList.remove('hard');
+  pips.forEach(p => p.classList.remove('on'));
+  level.textContent = 'Level ?';
+}
+
+function reveal(c){
+  hint.textContent = 'Reading it again won\u2019t make it easier.';
+  const step = reduced ? 0 : 350;
+  pips.forEach((p,i) => {
+    if (i < c.l) timers.push(setTimeout(() => p.classList.add('on'), 900 + step*i));
+  });
+  timers.push(setTimeout(() => {
+    level.textContent = LEVELS[c.l];
+    if (c.l === 3) front.classList.add('hard');
+    hint.textContent = c.l === 3 ? 'Legendary. Film it.' : 'Now go and do it.';
+  }, 900 + step*c.l));
+}
+
+function draw(){
+  clearTimers();
+  let i; do { i = Math.floor(Math.random()*CARDS.length); } while (i === last && CARDS.length > 1);
+  last = i;
+  const c = CARDS[i];
+  const flip = () => {
+    fill(c);
+    card.classList.add('flipped');
+    card.setAttribute('aria-label', 'Your card: ' + c.x + '. Draw another card.');
+    hint.textContent = 'Read it first.';
+    drawBtn.textContent = 'Draw another';
+    reveal(c);
+  };
+  if (card.classList.contains('flipped') && !reduced){
+    card.classList.remove('flipped');
+    timers.push(setTimeout(flip, 450));
+  } else flip();
+}
+card.addEventListener('click', draw);
+drawBtn.addEventListener('click', draw);
+
+/* Pre-select interest when a waitlist button is clicked */
+document.querySelectorAll('[data-interest]').forEach(a => {
+  a.addEventListener('click', () => { document.getElementById('interest').value = a.dataset.interest; });
+});
+
+/* Waitlist form */
+const form = document.getElementById('form');
+const msg = document.getElementById('formMsg');
+form.addEventListener('submit', async e => {
+  e.preventDefault();
+  const email = form.email.value.trim();
+  const interest = form.interest.value;
+  if (!/^\S+@\S+\.\S+$/.test(email)) { msg.textContent = 'Enter a valid email address to join the list.'; form.email.focus(); return; }
+  if (!FORM_ENDPOINT) {
+    window.location.href = 'mailto:' + CONTACT_EMAIL + '?subject=' + encodeURIComponent('DAVVAJ list: ' + interest) + '&body=' + encodeURIComponent('Add me to the list: ' + email);
+    msg.textContent = 'Your email app should open. Hit send and you\u2019re on the list.';
+    return;
+  }
+  msg.textContent = 'Adding you\u2026';
+  try {
+    const r = await fetch(FORM_ENDPOINT, {method:'POST', headers:{'Accept':'application/json','Content-Type':'application/json'}, body: JSON.stringify({email, interest})});
+    if (!r.ok) throw new Error();
+    form.reset();
+    msg.textContent = 'You\u2019re on the list. Your move is coming.';
+  } catch {
+    msg.textContent = 'That didn\u2019t go through. Try again, or email ' + CONTACT_EMAIL + '.';
+  }
+});
+
+document.getElementById('yr').textContent = new Date().getFullYear();
+</script>
+</body>
+</html>
